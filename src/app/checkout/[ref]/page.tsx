@@ -31,7 +31,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ ref: 
 
   return (
     <div>
-      <PageTitle title="Checkout" subtitle="Confirm before the hold runs out." />
+      <PageTitle title="Complete your booking" subtitle="Review your selected seats and enter your details to finalize." />
       <Checkout
         customerEmail={session.email}
         hold={{

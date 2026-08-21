@@ -5,6 +5,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/client";
 import { Alert, btn, input, label } from "@/components/ui";
+import { Icon } from "@/components/Icon";
 
 type Mode = "login" | "register";
 
@@ -21,6 +22,11 @@ export function AuthForm({ mode }: { mode: Mode }) {
   });
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+
+  const fillDemo = (email: string) => {
+    setForm((current) => ({ ...current, email, password: "Password123!" }));
+    setError(null);
+  };
 
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }));
@@ -126,7 +132,8 @@ export function AuthForm({ mode }: { mode: Mode }) {
       )}
 
       <button type="submit" className={`${btn} w-full`} disabled={busy}>
-        {busy ? "Please wait..." : mode === "register" ? "Create account" : "Sign in"}
+        {busy ? "Please wait..." : mode === "register" ? "Create account" : "Sign in securely"}
+        {!busy && <Icon name="arrow" size={17} />}
       </button>
 
       <p className="text-center text-sm opacity-70">
@@ -146,6 +153,20 @@ export function AuthForm({ mode }: { mode: Mode }) {
           </>
         )}
       </p>
+
+      {mode === "login" && (
+        <div className="pt-3">
+          <div className="mb-3 flex items-center gap-3 text-[11px] font-bold uppercase tracking-[.12em] text-[#777586]"><span className="h-px flex-1 bg-[#d8d4e4]"/>Demo credentials<span className="h-px flex-1 bg-[#d8d4e4]"/></div>
+          <div className="rounded-lg border border-[#d8d4e4] bg-[#f6f2fe] p-3">
+            <p className="mb-2 text-xs text-[#565564]">Choose a role. Password is filled automatically.</p>
+            {[['Admin','admin@demo.com','shield'],['Organiser','organiser@demo.com','calendar'],['Customer','customer@demo.com','user']].map(([role,email,icon]) => (
+              <button key={email} type="button" onClick={() => fillDemo(email)} className="mb-2 flex w-full items-center gap-3 rounded-md border border-[#d8d4e4] bg-white px-3 py-2.5 text-left last:mb-0 hover:border-[#4338ca]">
+                <span className="text-[#4338ca]"><Icon name={icon as 'shield' | 'calendar' | 'user'} size={18}/></span><span className="flex-1"><strong className="block text-sm">{role}</strong><span className="text-xs text-[#777586]">{email}</span></span><span className="text-xs font-bold text-[#2a14b4]">Use</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </form>
   );
 }
