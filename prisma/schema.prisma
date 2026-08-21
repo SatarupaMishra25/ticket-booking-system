@@ -1,0 +1,236 @@
+// Ticket Booking System — database schema
+// Postgres (Neon).  Run `npm run db:push` to sync.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Roles & users
+// ---------------------------------------------------------------------------
+
+enum Role {
+  CUSTOMER
+  ORGANISER
+  ADMIN
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         Role     @default(CUSTOMER)
+  createdAt    DateTime @default(now())
+
+  events    Event[]    @relation("OrganiserEvents")
+  bookings  Booking[]
+  heldSeats Seat[]     @relation("SeatHolder")
+  waitlist  Waitlist[]
+
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// Venue + seat layout  (owned by ADMIN)
+// ---------------------------------------------------------------------------
+
+model Venue {
+  id        String   @id @default(cuid())
+  name      String
+  city      String
+  address   String
+  createdAt DateTime @default(now())
+
+  categories SeatCategory[]
+  seats      VenueSeat[]
+  events     Event[]
+
+  @@map("venues")
+}
+
+/// A seat class inside a venue, e.g. "Premium", "Standard".
+model SeatCategory {
+  id      String @id @default(cuid())
+  venueId String
+  name    String
+  /// Display colour for the seat map legend.
+  colour  String @default("#6366f1")
+
+  venue    Venue           @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  seats    VenueSeat[]
+  pricing  EventPricing[]
+  waitlist Waitlist[]
+
+  @@unique([venueId, name])
+  @@map("seat_categories")
+}
+
+/// The physical seat layout of a venue — a template, not bookable itself.
+/// One row per seat, e.g. row "A", column 5.
+model VenueSeat {
+  id         String @id @default(cuid())
+  venueId    String
+  categoryId String
+  rowLabel   String
+  colNumber  Int
+
+  venue    Venue        @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  category SeatCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  seats    Seat[]
+
+  @@unique([venueId, rowLabel, colNumber])
+  @@index([venueId])
+  @@map("venue_seats")
+}
+
+// ---------------------------------------------------------------------------
+// Events / shows  (owned by ORGANISER)
+// ---------------------------------------------------------------------------
+
+enum EventType {
+  MOVIE
+  CONCERT
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  organiserId String
+  venueId     String
+  title       String
+  type        EventType
+  description String    @default("")
+  posterUrl   String?
+  startsAt    DateTime
+  createdAt   DateTime  @default(now())
+
+  organiser User           @relation("OrganiserEvents", fields: [organiserId], references: [id])
+  venue     Venue          @relation(fields: [venueId], references: [id])
+  pricing   EventPricing[]
+  seats     Seat[]
+  bookings  Booking[]
+  waitlist  Waitlist[]
+
+  @@index([startsAt])
+  @@map("events")
+}
+
+/// Price of one seat category for one event.
+model EventPricing {
+  id         String @id @default(cuid())
+  eventId    String
+  categoryId String
+  price      Int    // stored in paise/cents to avoid float errors
+
+  event    Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  category SeatCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, categoryId])
+  @@map("event_pricing")
+}
+
+// ---------------------------------------------------------------------------
+// Per-event seat instances — THE concurrency-critical table
+// ---------------------------------------------------------------------------
+
+enum SeatStatus {
+  AVAILABLE
+  HELD
+  BOOKED
+}
+
+/// One row per (event, venue seat).  Created when the organiser publishes
+/// an event.  `status` + `holdExpiresAt` together decide availability:
+/// a seat counts as free when status = AVAILABLE, or it is HELD but
+/// holdExpiresAt has already passed (lazy expiry — no cron required).
+model Seat {
+  id            String     @id @default(cuid())
+  eventId       String
+  venueSeatId   String
+  status        SeatStatus @default(AVAILABLE)
+  heldByUserId  String?
+  /// Groups the seats held together in one checkout attempt.
+  holdRef       String?
+  holdExpiresAt DateTime?
+  bookingId     String?
+
+  event     Event     @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  venueSeat VenueSeat @relation(fields: [venueSeatId], references: [id], onDelete: Cascade)
+  heldBy    User?     @relation("SeatHolder", fields: [heldByUserId], references: [id])
+  booking   Booking?  @relation(fields: [bookingId], references: [id])
+
+  @@unique([eventId, venueSeatId])
+  @@index([eventId, status])
+  @@index([holdExpiresAt])
+  @@index([holdRef])
+  @@map("seats")
+}
+
+// ---------------------------------------------------------------------------
+// Bookings
+// ---------------------------------------------------------------------------
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+model Booking {
+  id          String        @id @default(cuid())
+  /// Human-readable code printed on the ticket and encoded in the QR.
+  reference   String        @unique
+  eventId     String
+  userId      String
+  status      BookingStatus @default(CONFIRMED)
+  totalAmount Int
+  createdAt   DateTime      @default(now())
+  cancelledAt DateTime?
+
+  event Event  @relation(fields: [eventId], references: [id])
+  user  User   @relation(fields: [userId], references: [id])
+  seats Seat[]
+
+  @@index([userId])
+  @@index([eventId])
+  @@map("bookings")
+}
+
+// ---------------------------------------------------------------------------
+// Waitlist — one queue per (event, seat category)
+// ---------------------------------------------------------------------------
+
+enum WaitlistStatus {
+  WAITING
+  OFFERED
+  CONVERTED
+  EXPIRED
+  CANCELLED
+}
+
+model Waitlist {
+  id         String         @id @default(cuid())
+  eventId    String
+  categoryId String
+  userId     String
+  status     WaitlistStatus @default(WAITING)
+  /// FIFO position — the queue is ordered by this.
+  createdAt  DateTime       @default(now())
+
+  /// Set when a released seat is offered to this person.
+  offerToken     String?   @unique
+  offerSeatId    String?
+  offerExpiresAt DateTime?
+
+  event    Event        @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  category SeatCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([eventId, categoryId, userId])
+  @@index([eventId, categoryId, status, createdAt])
+  @@map("waitlist")
+}

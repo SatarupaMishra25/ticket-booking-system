@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #18181b;
+  --color-muted: #71717a;
+}
+
+:root {
+  --background: #fafafa;
+  --foreground: #18181b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0b0b0e;
+    --foreground: #f4f4f5;
+  }
+}
+
+html,
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+body {
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Seat map ------------------------------------------------------------- */
+
+.seat {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  font-size: 10px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+}
+
+.seat-available {
+  cursor: pointer;
+}
+
+.seat-available:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgb(0 0 0 / 0.22);
+}
+
+.seat-selected {
+  outline: 2px solid #18181b;
+  outline-offset: 1px;
+  transform: translateY(-2px);
+}
+
+.seat-booked,
+.seat-held {
+  cursor: not-allowed;
+  opacity: 0.28;
+}
+
+.seat-held-by-me {
+  outline: 2px dashed #f59e0b;
+  outline-offset: 1px;
+}
+
+/* The curved "screen" above the grid. */
+.screen {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, currentColor, transparent);
+  opacity: 0.35;
+}
