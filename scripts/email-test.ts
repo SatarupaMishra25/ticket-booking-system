@@ -17,6 +17,10 @@ sendTicketEmail({
   seats: ["A1", "A2"],
   total: 90000,
 }).then((r) => {
-  console.log(r.sent ? `SENT to ${to}` : `NOT SENT — ${r.reason}`);
+  console.log(
+    r.sent
+      ? `SENT to ${to} via ${r.provider}`
+      : `NOT SENT via ${r.provider} — ${r.reason}`,
+  );
   process.exit(r.sent ? 0 : 1);
 });
