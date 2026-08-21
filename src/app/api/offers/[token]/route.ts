@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { getSession } from "@/lib/auth";
 import { getOffer, redeemOffer } from "@/lib/waitlist";
+import { maybeSweep } from "@/lib/sweep";
 import { ok, fail, route } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,7 @@ type Ctx = { params: Promise<{ token: string }> };
 /** Details behind a time-limited offer link. */
 export const GET = route(async (_req: NextRequest, ctx: Ctx) => {
   const { token } = await ctx.params;
+  maybeSweep();
   const offer = await getOffer(token);
 
   if (!offer) return fail("This offer link is not valid or has already been used.", 404);

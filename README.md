@@ -479,8 +479,22 @@ Deployed on Vercel; any Node host works.
 4. Deploy. `npm run build` runs `prisma generate` automatically.
 5. Run `npm run db:push` and `npm run db:seed` once against the production database.
 
-`vercel.json` registers the sweep cron at one-minute intervals. On other hosts, call
-`/api/cron/sweep` from any scheduler, or omit it — only waitlist offer expiry depends on it.
+### Keeping the sweep running
+
+`/api/cron/sweep` expires stale waitlist offers, which is the one job no user request can
+trigger. It runs in three layers so no single one has to be perfect:
+
+1. **Opportunistic** — the seat map poll, waitlist page and offer page nudge the sweep along,
+   throttled to once a minute and never awaited.
+2. **Vercel Cron** — `vercel.json` schedules it daily, because **Vercel's Hobby plan permits only
+   one cron run per day**. On Pro, change the schedule to `* * * * *`.
+3. **External pinger** — recommended on free hosting. Point any uptime service at
+   `https://YOUR-APP.vercel.app/api/cron/sweep?secret=YOUR_CRON_SECRET` every 3–5 minutes.
+
+A pinger on that interval also stops Neon's free tier suspending the database after ~5 minutes
+idle, so a visitor arriving at any time gets a fast first page instead of a cold start.
+
+Full detail in [CRON.md](./CRON.md).
 
 ---
 

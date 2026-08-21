@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { z } from "zod";
 import { requireUser } from "@/lib/auth";
 import { joinWaitlist, getWaitlistForUser } from "@/lib/waitlist";
+import { maybeSweep } from "@/lib/sweep";
 import { ok, route } from "@/lib/api";
 
 export const dynamic = "force-dynamic";
@@ -9,6 +10,7 @@ export const dynamic = "force-dynamic";
 /** The signed-in customer's waitlist entries. */
 export const GET = route(async () => {
   const session = await requireUser();
+  maybeSweep();
   return ok({ entries: await getWaitlistForUser(session.userId) });
 });
 
