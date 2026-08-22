@@ -37,6 +37,8 @@ body {
 }
 
 button, input, select, textarea { font: inherit; }
+input[type="date"], input[type="time"] { color-scheme: dark; }
+.picker-input::-webkit-calendar-picker-indicator { opacity: 0; cursor: pointer; }
 button, a { -webkit-tap-highlight-color: transparent; }
 ::selection { background: #ec4899; color: #fff; }
 

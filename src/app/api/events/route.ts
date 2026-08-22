@@ -4,6 +4,7 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/auth";
 import { ok, fail, route } from "@/lib/api";
+import { indiaDateRange } from "@/lib/dates";
 
 export const dynamic = "force-dynamic";
 
@@ -32,7 +33,11 @@ export const GET = route(async (req: NextRequest) => {
     const session = await requireRole("ORGANISER", "ADMIN");
     if (session.role === "ORGANISER") where.organiserId = session.userId;
   } else if (sp.get("past") !== "1") {
-    where.startsAt = { gte: new Date() };
+    const now = new Date();
+    const selectedDay = indiaDateRange(sp.get("date"));
+    where.startsAt = selectedDay
+      ? { gte: selectedDay.start > now ? selectedDay.start : now, lt: selectedDay.end }
+      : { gte: now };
   }
 
   const events = await prisma.event.findMany({

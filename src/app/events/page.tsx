@@ -4,9 +4,11 @@ import { prisma } from "@/lib/prisma";
 import { money, dateTime } from "@/lib/format";
 import { Empty, input } from "@/components/ui";
 import { Icon } from "@/components/Icon";
+import { PickerInput } from "@/components/PickerInput";
+import { indiaDateRange } from "@/lib/dates";
 
 export const dynamic = "force-dynamic";
-type Search = { q?: string; type?: string; city?: string };
+type Search = { q?: string; type?: string; city?: string; date?: string };
 const artwork = ["/events/midnight-symphony.webp", "/events/stellar-screening.webp", "/events/modern-movements.webp"];
 
 export default async function EventsPage({ searchParams }: { searchParams: Promise<Search> }) {
@@ -14,12 +16,17 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
   const q = sp.q?.trim() ?? "";
   const type = sp.type === "MOVIE" || sp.type === "CONCERT" ? sp.type : undefined;
   const city = sp.city?.trim() || undefined;
+  const date = indiaDateRange(sp.date) ? sp.date : undefined;
+  const selectedDay = indiaDateRange(date);
+  const now = new Date();
+  const startsAt = selectedDay
+    ? { gte: selectedDay.start > now ? selectedDay.start : now, lt: selectedDay.end }
+    : { gte: now };
   const events = await prisma.event.findMany({
-    where: { startsAt: { gte: new Date() }, ...(q ? { title: { contains: q, mode: "insensitive" as const } } : {}), ...(type ? { type } : {}), ...(city ? { venue: { city: { equals: city, mode: "insensitive" as const } } } : {}) },
+    where: { startsAt, ...(q ? { title: { contains: q, mode: "insensitive" as const } } : {}), ...(type ? { type } : {}), ...(city ? { venue: { city: { equals: city, mode: "insensitive" as const } } } : {}) },
     orderBy: { startsAt: "asc" },
     include: { venue: { include: { categories: { orderBy: { name: "asc" } } } }, pricing: true, organiser: { select: { name: true } }, _count: { select: { seats: true } } },
   });
-  const now = new Date();
   const grouped = await prisma.seat.groupBy({ by: ["eventId"], where: { eventId: { in: events.map((e) => e.id) }, OR: [{ status: "AVAILABLE" }, { status: "HELD", holdExpiresAt: { lte: now } }] }, _count: { _all: true } });
   const availableBy = new Map(grouped.map((g) => [g.eventId, g._count._all]));
   const cities = await prisma.venue.findMany({ select: { city: true }, distinct: ["city"], orderBy: { city: "asc" } });
@@ -28,10 +35,11 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
     <div>
       <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div><p className="mb-2 text-xs font-black uppercase tracking-[.18em] text-[#ec4899]">Live inventory</p><h1 className="text-4xl font-black tracking-[-.04em] text-[#e1e2ec] sm:text-5xl">Browse events</h1><p className="mt-3 text-lg text-[#a5aabc]">Find the best experiences in your city.</p></div>
-        <form className="grid w-full gap-3 sm:grid-cols-3 lg:max-w-[760px] lg:grid-cols-[1.4fr_1fr_1fr_auto]">
+        <form className="grid w-full gap-3 sm:grid-cols-2 lg:max-w-[980px] lg:grid-cols-[1.35fr_.9fr_.9fr_1fr_auto]">
           <label className="relative"><span className="sr-only">Search events</span><Icon name="search" size={18} className="absolute left-3 top-3.5 text-[#8d909d]"/><input name="q" defaultValue={q} placeholder="Search events…" className={`${input} pl-10`} /></label>
           <select name="type" defaultValue={type ?? ""} className={input} aria-label="Event type"><option value="">All types</option><option value="MOVIE">Movies</option><option value="CONCERT">Concerts</option></select>
           <select name="city" defaultValue={city ?? ""} className={input} aria-label="City"><option value="">Any city</option>{cities.map((c) => <option key={c.city}>{c.city}</option>)}</select>
+          <PickerInput type="date" name="date" defaultValue={date ?? ""} aria-label="Event date" />
           <button type="submit" className="min-h-11 rounded-lg border border-[#7bd0ff]/35 bg-[#7bd0ff]/5 px-5 text-sm font-bold text-[#7bd0ff] hover:border-[#7bd0ff] hover:bg-[#7bd0ff]/10">Filter</button>
         </form>
       </div>

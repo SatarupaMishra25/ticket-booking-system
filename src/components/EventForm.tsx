@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/client";
 import { Alert, Card, btn, input, label } from "@/components/ui";
+import { PickerInput } from "@/components/PickerInput";
 
 type Venue = {
   id: string;
@@ -15,12 +16,15 @@ type Venue = {
 
 export function EventForm({ venues }: { venues: Venue[] }) {
   const router = useRouter();
+  const today = new Date();
+  const minimumDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
   const [venueId, setVenueId] = useState(venues[0]?.id ?? "");
   const [form, setForm] = useState({
     title: "",
     type: "MOVIE" as "MOVIE" | "CONCERT",
     description: "",
-    startsAt: "",
+    eventDate: "",
+    eventTime: "",
   });
   /** Prices are typed in rupees and converted to paise on submit. */
   const [prices, setPrices] = useState<Record<string, string>>({});
@@ -44,6 +48,11 @@ export function EventForm({ venues }: { venues: Venue[] }) {
       pricing[c.id] = Math.round(rupees * 100);
     }
 
+    const localStart = new Date(`${form.eventDate}T${form.eventTime}`);
+    if (Number.isNaN(localStart.getTime())) {
+      return setError("Choose a valid event date and time.");
+    }
+
     setBusy(true);
     try {
       await api("/api/events", {
@@ -53,8 +62,7 @@ export function EventForm({ venues }: { venues: Venue[] }) {
           title: form.title,
           type: form.type,
           description: form.description,
-          // datetime-local has no timezone; treat it as the browser's local time.
-          startsAt: new Date(form.startsAt).toISOString(),
+          startsAt: localStart.toISOString(),
           pricing,
         },
       });
@@ -112,17 +120,34 @@ export function EventForm({ venues }: { venues: Venue[] }) {
           </div>
 
           <div>
-            <label className={label} htmlFor="startsAt">
-              Starts at
-            </label>
-            <input
-              id="startsAt"
-              type="datetime-local"
-              className={input}
-              value={form.startsAt}
-              onChange={(e) => setForm({ ...form, startsAt: e.target.value })}
-              required
-            />
+            <span className={label}>Starts at</span>
+            <div className="grid gap-2 sm:grid-cols-[1.2fr_.8fr]">
+              <div>
+                <label htmlFor="eventDate" className="sr-only">Event date</label>
+                <PickerInput
+                  id="eventDate"
+                  type="date"
+                  min={minimumDate}
+                  value={form.eventDate}
+                  onChange={(e) => setForm({ ...form, eventDate: e.target.value })}
+                  required
+                  aria-label="Event date"
+                />
+              </div>
+              <div>
+                <label htmlFor="eventTime" className="sr-only">Event time</label>
+                <PickerInput
+                  id="eventTime"
+                  type="time"
+                  step={300}
+                  value={form.eventTime}
+                  onChange={(e) => setForm({ ...form, eventTime: e.target.value })}
+                  required
+                  aria-label="Event time"
+                />
+              </div>
+            </div>
+            <p className="mt-1.5 text-xs text-[#8d909d]">Choose a calendar date, then select the start time.</p>
           </div>
         </div>
 

@@ -385,9 +385,10 @@ Creating a venue generates its `venue_seats` rows. Each row label may belong to 
 
 | Method | Path                        | Access            | Body / notes                                          |
 | ------ | --------------------------- | ----------------- | ----------------------------------------------------- |
-| `GET`  | `/api/events`               | public            | Filters: `?q=`, `?type=MOVIE\|CONCERT`, `?city=`, `?mine=1`, `?past=1` |
+| `GET`  | `/api/events`               | public            | Filters: `?q=`, `?type=MOVIE\|CONCERT`, `?city=`, `?date=YYYY-MM-DD`, `?mine=1`, `?past=1` |
 | `POST` | `/api/events`               | ORGANISER / ADMIN | `{ venueId, title, type, description, startsAt, pricing: { categoryId: paise } }` |
 | `GET`  | `/api/events/:id`           | public            | **Full seat map.** Polled by the seat map page.        |
+| `DELETE` | `/api/events/:id`         | owning ORGANISER / ADMIN | Deletes an event only when it has no booking history. |
 | `GET`  | `/api/events/:id/summary`   | owning ORGANISER / ADMIN | Revenue, seat totals, waitlist counts, booking list |
 
 Publishing an event materialises one `seats` row per venue seat.

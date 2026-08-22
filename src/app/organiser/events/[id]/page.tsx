@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { money, dateTime } from "@/lib/format";
 import { Badge, Card, Empty, PageTitle, btnGhost } from "@/components/ui";
+import { DeleteEventButton } from "@/components/DeleteEventButton";
 
 export const dynamic = "force-dynamic";
 
@@ -90,9 +91,10 @@ export default async function EventSummaryPage({
             subtitle={`${event.venue.name}, ${event.venue.city} · ${dateTime(event.startsAt)}`}
           />
         </div>
-        <Link href={`/events/${event.id}`} className={btnGhost}>
-          View seat map
-        </Link>
+        <div className="flex items-start gap-3">
+          <DeleteEventButton eventId={event.id} eventTitle={event.title} redirectAfterDelete />
+          <Link href={`/events/${event.id}`} className={btnGhost}>View seat map</Link>
+        </div>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-4">
