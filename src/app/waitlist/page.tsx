@@ -9,11 +9,11 @@ import { Badge, Card, Empty, PageTitle, btn } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
 const STATUS_STYLE: Record<string, string> = {
-  WAITING: "bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300",
-  OFFERED: "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300",
-  CONVERTED: "bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300",
-  EXPIRED: "bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
-  CANCELLED: "bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+  WAITING: "border border-sky-400/25 bg-sky-400/10 text-sky-300",
+  OFFERED: "border border-amber-400/25 bg-amber-400/10 text-amber-300",
+  CONVERTED: "border border-emerald-400/25 bg-emerald-400/10 text-emerald-300",
+  EXPIRED: "border border-white/10 bg-white/5 text-[#8d909d]",
+  CANCELLED: "border border-white/10 bg-white/5 text-[#8d909d]",
 };
 
 export default async function WaitlistPage() {
@@ -64,7 +64,7 @@ export default async function WaitlistPage() {
                     </p>
                   )}
                   {e.offerLive && e.offerExpiresAt && (
-                    <p className="mt-2 text-sm text-amber-700 dark:text-amber-400">
+                    <p className="mt-2 text-sm text-amber-300">
                       A seat is being held for you until {dateTime(e.offerExpiresAt)}.
                     </p>
                   )}

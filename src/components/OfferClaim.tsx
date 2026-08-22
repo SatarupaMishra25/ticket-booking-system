@@ -68,7 +68,7 @@ export function OfferClaim({
     <div className="space-y-3">
       {error && <Alert>{error}</Alert>}
 
-      <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-200">
+      <div className="rounded-lg border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
         Reserved for you for{" "}
         <strong className="font-mono tabular-nums">{left}</strong> — after that it passes to the
         next person in the queue.

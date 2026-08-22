@@ -8,8 +8,8 @@
 }
 
 :root {
-  --background: #070914;
-  --foreground: #e1e2ec;
+  --background: #020617;
+  --foreground: #dce1fb;
   --surface: #0c1324;
   --surface-low: #151b2d;
   --surface-container: #191f31;
@@ -23,7 +23,7 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; color-scheme: dark; background: var(--background); }
 
 body {
   margin: 0;
@@ -38,6 +38,17 @@ body {
 
 button, input, select, textarea { font: inherit; }
 input[type="date"], input[type="time"] { color-scheme: dark; }
+select option { background: #070d1f; color: #dce1fb; }
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: #dce1fb;
+  box-shadow: 0 0 0 1000px #070d1f inset;
+  caret-color: #dce1fb;
+  transition: background-color 9999s ease-out;
+}
 .picker-input::-webkit-calendar-picker-indicator { opacity: 0; cursor: pointer; }
 button, a { -webkit-tap-highlight-color: transparent; }
 ::selection { background: #ec4899; color: #fff; }

@@ -20,7 +20,7 @@ function navFor(role: string | undefined) {
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const session = await getSession();
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body className="min-h-screen">
         <AppHeader nav={navFor(session?.role)} user={session ? { name: session.name, role: session.role } : null} />
         <main className="mx-auto min-h-[calc(100vh-150px)] max-w-[1440px] px-5 py-8 sm:px-8 sm:py-10">{children}</main>

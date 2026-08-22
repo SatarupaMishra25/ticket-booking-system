@@ -34,12 +34,12 @@ export function Checkout({ hold, customerEmail }: { hold: Hold; customerEmail: s
     catch (err) { setError((err as Error).message); setBusy(false); }
   }
 
-  async function release() { setBusy(true); try { await api(`/api/holds/${hold.holdRef}`, { method: "DELETE" }); } catch {} router.push(`/events/${hold.event.id}`); }
+  async function release() { setBusy(true); try { await api(`/api/holds/${hold.holdRef}`, { method: "DELETE" }); } catch {} router.push(`/events/${hold.event.id}/seats`); }
 
   return (
     <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_440px]">
       <div className="space-y-6">
-        {expired ? <Alert>This hold expired and the seats returned to the live map. <Link href={`/events/${hold.event.id}`} className="font-bold underline">Pick seats again</Link>.</Alert> : null}
+        {expired ? <Alert>This hold expired and the seats returned to the live map. <Link href={`/events/${hold.event.id}/seats`} className="font-bold underline">Pick seats again</Link>.</Alert> : null}
         {error && <Alert>{error}</Alert>}
 
         <Card className="p-5 sm:p-7">

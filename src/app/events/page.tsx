@@ -6,10 +6,10 @@ import { Empty, input } from "@/components/ui";
 import { Icon } from "@/components/Icon";
 import { PickerInput } from "@/components/PickerInput";
 import { indiaDateRange } from "@/lib/dates";
+import { eventArtwork } from "@/lib/artwork";
 
 export const dynamic = "force-dynamic";
 type Search = { q?: string; type?: string; city?: string; date?: string };
-const artwork = ["/events/midnight-symphony.webp", "/events/stellar-screening.webp", "/events/modern-movements.webp"];
 
 export default async function EventsPage({ searchParams }: { searchParams: Promise<Search> }) {
   const sp = await searchParams;
@@ -50,7 +50,7 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
             const available = availableBy.get(event.id) ?? 0;
             const soldOut = available === 0;
             const cheapest = event.pricing.length ? Math.min(...event.pricing.map((p) => p.price)) : 0;
-            const image = event.type === "MOVIE" ? artwork[1] : artwork[index % artwork.length === 1 ? 2 : index % artwork.length];
+            const image = eventArtwork(event);
             return (
               <article key={event.id} className="ambient-card group overflow-hidden rounded-xl border border-white/10 bg-[#0c1324]/85 transition duration-300 hover:-translate-y-1 hover:border-[#ec4899]/45 hover:shadow-[0_18px_50px_-28px_rgba(236,72,153,.45)]">
                 <Link href={`/events/${event.id}`} className="block">

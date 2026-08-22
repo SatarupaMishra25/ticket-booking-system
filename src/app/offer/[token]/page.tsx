@@ -67,7 +67,7 @@ export default async function OfferPage({
               {event.venue.name}, {event.venue.city}
             </dd>
           </div>
-          <div className="flex justify-between gap-3 border-t border-black/10 pt-2 font-semibold dark:border-white/10">
+          <div className="flex justify-between gap-3 border-t border-white/10 pt-2 font-semibold">
             <dt>Price</dt>
             <dd>{money(offer.price)}</dd>
           </div>

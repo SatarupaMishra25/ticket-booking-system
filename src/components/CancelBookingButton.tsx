@@ -41,7 +41,7 @@ export function CancelBookingButton({
   }
 
   if (error) {
-    return <p className="text-xs text-red-600 dark:text-red-400">{error}</p>;
+    return <p className="text-xs font-medium text-rose-300">{error}</p>;
   }
 
   if (!confirming) {
