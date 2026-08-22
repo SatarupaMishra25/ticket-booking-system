@@ -14,7 +14,7 @@ export default async function LoginPage() {
     <div className="mx-auto max-w-lg py-6 sm:py-12">
       <Card className="p-6 sm:p-9">
         <div className="mb-7 text-center">
-          <span className="mx-auto grid h-14 w-14 place-items-center rounded-xl bg-[#2a14b4] text-white shadow-lg"><Icon name="ticket" size={28}/></span>
+          <span className="mx-auto grid h-14 w-14 place-items-center rounded-xl bg-gradient-to-br from-[#ec4899] to-[#8b5cf6] text-white shadow-[0_0_30px_-10px_rgba(236,72,153,.8)]"><Icon name="ticket" size={28}/></span>
           <div className="mt-5"><PageTitle title="Sign in to TBS" subtitle="Enter your details to access your account." /></div>
         </div>
         <Suspense fallback={null}>

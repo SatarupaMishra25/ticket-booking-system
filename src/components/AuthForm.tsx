@@ -156,12 +156,12 @@ export function AuthForm({ mode }: { mode: Mode }) {
 
       {mode === "login" && (
         <div className="pt-3">
-          <div className="mb-3 flex items-center gap-3 text-[11px] font-bold uppercase tracking-[.12em] text-[#777586]"><span className="h-px flex-1 bg-[#d8d4e4]"/>Demo credentials<span className="h-px flex-1 bg-[#d8d4e4]"/></div>
-          <div className="rounded-lg border border-[#d8d4e4] bg-[#f6f2fe] p-3">
-            <p className="mb-2 text-xs text-[#565564]">Choose a role. Password is filled automatically.</p>
+          <div className="mb-3 flex items-center gap-3 text-[11px] font-bold uppercase tracking-[.12em] text-[#8d909d]"><span className="h-px flex-1 bg-white/10"/>Demo credentials<span className="h-px flex-1 bg-white/10"/></div>
+          <div className="rounded-lg border border-white/10 bg-white/[.025] p-3">
+            <p className="mb-2 text-xs text-[#a5aabc]">Choose a role. Password is filled automatically.</p>
             {[['Admin','admin@demo.com','shield'],['Organiser','organiser@demo.com','calendar'],['Customer','customer@demo.com','user']].map(([role,email,icon]) => (
-              <button key={email} type="button" onClick={() => fillDemo(email)} className="mb-2 flex w-full items-center gap-3 rounded-md border border-[#d8d4e4] bg-white px-3 py-2.5 text-left last:mb-0 hover:border-[#4338ca]">
-                <span className="text-[#4338ca]"><Icon name={icon as 'shield' | 'calendar' | 'user'} size={18}/></span><span className="flex-1"><strong className="block text-sm">{role}</strong><span className="text-xs text-[#777586]">{email}</span></span><span className="text-xs font-bold text-[#2a14b4]">Use</span>
+              <button key={email} type="button" onClick={() => fillDemo(email)} className="mb-2 flex w-full items-center gap-3 rounded-md border border-white/10 bg-[#0c1324] px-3 py-2.5 text-left last:mb-0 hover:border-[#ec4899]/60">
+                <span className="text-[#ec4899]"><Icon name={icon as 'shield' | 'calendar' | 'user'} size={18}/></span><span className="flex-1"><strong className="block text-sm">{role}</strong><span className="text-xs text-[#8d909d]">{email}</span></span><span className="text-xs font-bold text-[#7bd0ff]">Use</span>
               </button>
             ))}
           </div>

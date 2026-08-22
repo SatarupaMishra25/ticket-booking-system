@@ -24,9 +24,9 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <body className="min-h-screen">
         <AppHeader nav={navFor(session?.role)} user={session ? { name: session.name, role: session.role } : null} />
         <main className="mx-auto min-h-[calc(100vh-150px)] max-w-[1440px] px-5 py-8 sm:px-8 sm:py-10">{children}</main>
-        <footer className="border-t border-[#d8d4e4] bg-white">
-          <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-5 py-7 text-sm text-[#565e74] sm:flex-row sm:items-center sm:px-8">
-            <Link href="/" className="font-black tracking-tight text-[#2a14b4]">TBS</Link>
+        <footer className="border-t border-white/10 bg-[#151b2d]">
+          <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-5 py-7 text-sm text-[#a5aabc] sm:flex-row sm:items-center sm:px-8">
+            <Link href="/" className="font-black tracking-tight text-[#ec4899]">TBS</Link>
             <p className="sm:ml-auto">© 2026 Ticket Booking System. Built for scale and fairness.</p>
             <div className="flex gap-5"><Link href="/">About</Link><Link href="/">Support</Link><Link href="/">Privacy</Link></div>
           </div>
